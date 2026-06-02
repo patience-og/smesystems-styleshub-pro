@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book an Appointment</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --plum:#2D0A31;--plum2:#3D1242;--plum3:#4E1A55;
+  --rose:#C9847A;--rose2:#E8A598;--rose3:#F5C5BC;
+  --gold:#C9A96E;--gold2:#E0C08A;
+  --cream:#FDF8F5;--light:#F5EEE9;--rule:#E8DDD6;
+  --ink:#1A0A1C;--muted:#9A8090;--slate:#6B5570;
+  --green:#2E7D5E;--red:#C0392B;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{min-height:100%;font-family:'Jost',sans-serif;font-size:14px;background:var(--cream);color:var(--ink)}
+
+/* HEADER */
+.portal-header{background:linear-gradient(135deg,var(--plum) 0%,var(--plum2) 100%);padding:32px 20px;text-align:center;position:relative;overflow:hidden}
+.portal-header::before{content:'✦';position:absolute;font-size:300px;color:rgba(201,132,122,.05);top:-60px;right:-40px;line-height:1;pointer-events:none}
+.portal-header .salon-name{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:4px}
+.portal-header .salon-name span{color:var(--rose2)}
+.portal-header .tagline{font-size:12px;color:rgba(255,255,255,.5);letter-spacing:3px;text-transform:uppercase}
+.portal-header .divider{width:40px;height:1px;background:linear-gradient(90deg,transparent,var(--rose),transparent);margin:12px auto}
+
+/* STEPS */
+.steps-bar{background:#fff;border-bottom:1px solid var(--rule);padding:16px 20px;display:flex;justify-content:center;gap:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(45,10,49,.06)}
+.step{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;font-weight:500;padding:0 16px;position:relative}
+.step.active{color:var(--plum);font-weight:700}
+.step.done{color:var(--green)}
+.step .num{width:26px;height:26px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:.2s}
+.step.active .num{background:var(--plum);border-color:var(--plum);color:#fff}
+.step.done .num{background:var(--green);border-color:var(--green);color:#fff}
+.step .label{display:none}
+@media(min-width:500px){.step .label{display:block}}
+.step-connector{width:30px;height:1px;background:var(--rule);flex-shrink:0}
+.step-connector.done{background:var(--green)}
+
+/* MAIN */
+.portal-main{max-width:680px;margin:0 auto;padding:24px 16px 60px}
+
+/* SECTION */
+.section{display:none}
+.section.active{display:block}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:700;color:var(--plum);margin-bottom:6px}
+.section-sub{font-size:12px;color:var(--muted);margin-bottom:20px;letter-spacing:.03em}
+
+/* SERVICE GRID */
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.svc-tile{background:#fff;border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s;border:2px solid transparent;box-shadow:0 2px 8px rgba(45,10,49,.06)}
+.svc-tile:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:0 6px 20px rgba(45,10,49,.1)}
+.svc-tile.selected{border-color:var(--plum);box-shadow:0 6px 20px rgba(45,10,49,.15)}
+.svc-tile .svc-img{width:100%;height:100px;object-fit:cover;background:linear-gradient(135deg,var(--light),var(--rule));display:flex;align-items:center;justify-content:center;font-size:32px;overflow:hidden}
+.svc-tile .svc-img img{width:100%;height:100%;object-fit:cover}
+.svc-tile .svc-info{padding:10px 12px}
+.svc-tile .svc-cat{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.svc-tile .svc-name{font-size:12px;font-weight:700;color:var(--plum);line-height:1.3;margin-bottom:4px}
+.svc-tile .svc-meta{display:flex;justify-content:space-between;align-items:center}
+.svc-tile .svc-price{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:700;color:var(--rose)}
+.svc-tile .svc-dur{font-size:10px;color:var(--muted)}
+
+/* STYLIST CARDS */
+.stylist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stylist-tile{background:#fff;border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;transition:all .2s;border:2px solid transparent;box-shadow:0 2px 8px rgba(45,10,49,.06)}
+.stylist-tile:hover{border-color:var(--rose);transform:translateY(-2px)}
+.stylist-tile.selected{border-color:var(--plum);background:rgba(45,10,49,.03)}
+.stylist-tile .st-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--rose3),var(--rose));margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;box-shadow:0 3px 10px rgba(201,132,122,.3)}
+.stylist-tile .st-name{font-size:13px;font-weight:700;color:var(--plum);margin-bottom:3px}
+.stylist-tile .st-role{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stylist-tile .st-spec{font-size:10px;color:var(--slate)}
+.stylist-tile.any{border-style:dashed}
+
+/* DATE & TIME */
+.date-field{margin-bottom:20px}
+.date-field label{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:8px}
+.date-field input{width:100%;padding:12px 16px;border:1.5px solid var(--rule);border-radius:10px;font-size:15px;font-family:'Jost',sans-serif;color:var(--ink);outline:none;background:#fff;transition:.2s}
+.date-field input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,132,122,.1)}
+
+.time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-bottom:20px}
+.time-slot{padding:10px 8px;text-align:center;border:1.5px solid var(--rule);border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--slate);background:#fff;transition:all .15s}
+.time-slot:hover{border-color:var(--rose);color:var(--plum)}
+.time-slot.selected{background:var(--plum);border-color:var(--plum);color:#fff;font-weight:700}
+.time-slot.booked{background:var(--light);border-color:var(--rule);color:var(--rule);cursor:not-allowed;text-decoration:line-through}
+.no-slots{text-align:center;padding:30px;color:var(--muted);font-size:13px;line-height:2}
+
+/* DETAILS FORM */
+.form-field{margin-bottom:16px}
+.form-field label{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:7px}
+.form-field input,.form-field textarea,.form-field select{width:100%;padding:12px 16px;border:1.5px solid var(--rule);border-radius:10px;font-size:14px;font-family:'Jost',sans-serif;color:var(--ink);background:#fff;outline:none;transition:.2s}
+.form-field input:focus,.form-field textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,132,122,.1)}
+.form-field textarea{resize:vertical;min-height:80px}
+
+/* SUMMARY CARD */
+.summary-card{background:#fff;border-radius:14px;padding:24px;box-shadow:0 4px 20px rgba(45,10,49,.08);border:1px solid var(--rule);margin-bottom:20px}
+.summary-card .s-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--light);font-size:13px}
+.summary-card .s-row:last-child{border-bottom:none}
+.summary-card .s-label{color:var(--muted);font-weight:500}
+.summary-card .s-value{font-weight:600;color:var(--ink);text-align:right}
+.summary-card .s-total{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--plum)}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:12px;margin-top:20px}
+.btn{padding:13px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:'Jost',sans-serif;cursor:pointer;transition:all .2s;flex:1}
+.btn-primary{background:linear-gradient(135deg,var(--plum2),var(--plum3));color:#fff;box-shadow:0 4px 16px rgba(45,10,49,.2)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(45,10,49,.3)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-secondary{background:var(--light);color:var(--plum);border:1px solid var(--rule);flex:0 0 auto;padding:13px 20px}
+.btn-secondary:hover{background:var(--rule)}
+
+/* SUCCESS */
+.success-screen{text-align:center;padding:40px 20px}
+.success-screen .check{font-size:64px;margin-bottom:20px;animation:pop .4s ease}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.success-screen .title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--plum);margin-bottom:8px}
+.success-screen .sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.8}
+.appt-ref{display:inline-block;background:var(--light);border:1px solid var(--rule);border-radius:10px;padding:12px 24px;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--plum);letter-spacing:1px;margin-bottom:24px}
+.book-another{background:transparent;border:1.5px solid var(--plum);color:var(--plum);padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Jost',sans-serif;transition:.2s}
+.book-another:hover{background:var(--plum);color:#fff}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);gap:10px;font-size:13px}
+.spinner{width:20px;height:20px;border:2px solid var(--rule);border-top-color:var(--rose);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ERROR */
+.error-msg{background:#FEF2F2;border-left:3px solid var(--red);color:var(--red);padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999}
+.toast{background:var(--plum2);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-tab{padding:6px 16px;border-radius:20px;border:1.5px solid var(--rule);background:#fff;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:.15s}
+.filter-tab:hover{border-color:var(--rose);color:var(--plum)}
+.filter-tab.active{background:var(--plum);border-color:var(--plum);color:#fff;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="portal-header">
+  <div class="salon-name" id="salon-name">Styles<span>Hub</span> Pro</div>
+  <div class="divider"></div>
+  <div class="tagline">Online Booking Portal</div>
+</div>
+
+<div class="steps-bar">
+  <div class="step active" id="step1"><div class="num">1</div><div class="label">Service</div></div>
+  <div class="step-connector" id="conn1"></div>
+  <div class="step" id="step2"><div class="num">2</div><div class="label">Stylist</div></div>
+  <div class="step-connector" id="conn2"></div>
+  <div class="step" id="step3"><div class="num">3</div><div class="label">Date & Time</div></div>
+  <div class="step-connector" id="conn3"></div>
+  <div class="step" id="step4"><div class="num">4</div><div class="label">Your Details</div></div>
+  <div class="step-connector" id="conn4"></div>
+  <div class="step" id="step5"><div class="num">5</div><div class="label">Confirm</div></div>
+</div>
+
+<div class="portal-main">
+
+  <!-- STEP 1: SERVICE -->
+  <div class="section active" id="section-1">
+    <div class="section-title">Choose a Service</div>
+    <div class="section-sub">Select the service you'd like to book</div>
+    <div class="filter-tabs" id="cat-tabs"></div>
+    <div class="svc-grid" id="svc-grid"><div class="loading"><div class="spinner"></div>Loading services...</div></div>
+  </div>
+
+  <!-- STEP 2: STYLIST -->
+  <div class="section" id="section-2">
+    <div class="section-title">Choose a Stylist</div>
+    <div class="section-sub">Select your preferred stylist or let us assign one</div>
+    <div class="stylist-grid" id="stylist-grid"></div>
+    <div class="btn-row"><button class="btn btn-secondary" onclick="goTo(1)">← Back</button></div>
+  </div>
+
+  <!-- STEP 3: DATE & TIME -->
+  <div class="section" id="section-3">
+    <div class="section-title">Pick a Date & Time</div>
+    <div class="section-sub">Select your preferred appointment date and available time slot</div>
+    <div class="date-field">
+      <label>Date</label>
+      <input type="date" id="appt-date" onchange="loadTimeSlots()">
+    </div>
+    <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Available Times</div>
+    <div class="time-grid" id="time-grid"><div class="loading"><div class="spinner"></div>Loading slots...</div></div>
+    <div class="btn-row"><button class="btn btn-secondary" onclick="goTo(2)">← Back</button></div>
+  </div>
+
+  <!-- STEP 4: DETAILS -->
+  <div class="section" id="section-4">
+    <div class="section-title">Your Details</div>
+    <div class="section-sub">Tell us a little about yourself</div>
+    <div class="error-msg" id="details-error"></div>
+    <div class="form-field"><label>Full Name *</label><input type="text" id="client-name" placeholder="Your full name"></div>
+    <div class="form-field"><label>Phone Number *</label><input type="tel" id="client-phone" placeholder="+254 7xx xxx xxx"></div>
+    <div class="form-field"><label>Email (optional)</label><input type="email" id="client-email" placeholder="your@email.com"></div>
+    <div class="form-field"><label>Special Requests or Notes</label><textarea id="client-notes" placeholder="Any allergies, preferences or special requests..."></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goTo(3)">← Back</button>
+      <button class="btn btn-primary" onclick="goTo(5)">Review Booking →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: CONFIRM -->
+  <div class="section" id="section-5">
+    <div class="section-title">Confirm Booking</div>
+    <div class="section-sub">Please review your appointment details</div>
+    <div class="summary-card" id="summary-card"></div>
+    <div class="error-msg" id="confirm-error"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goTo(4)">← Back</button>
+      <button class="btn btn-primary" id="confirm-btn" onclick="confirmBooking()">Confirm Appointment ✓</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="section" id="section-success">
+    <div class="success-screen">
+      <div class="check">✨</div>
+      <div class="title">You're All Set!</div>
+      <div class="sub">Your appointment has been booked successfully.<br>We'll see you soon!</div>
+      <div class="appt-ref" id="appt-ref">APPT-0000</div>
+      <div id="success-details" style="margin-bottom:24px;font-size:13px;color:var(--muted);line-height:2"></div>
+      <button class="book-another" onclick="resetBooking()">Book Another Appointment</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+var BOOKING = {
+  service: null,
+  stylist: null,
+  date: null,
+  time: null,
+  clientName: '',
+  clientPhone: '',
+  clientEmail: '',
+  clientNotes: '',
+  currentStep: 1
+};
+
+var ALL_SERVICES = [];
+var ALL_STYLISTS = [];
+var ALL_APPOINTMENTS = [];
+var SETTINGS = {};
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+window.onload = function() {
+  // Set min date to today
+  var today = new Date().toISOString().slice(0,10);
+  document.getElementById('appt-date').min = today;
+  document.getElementById('appt-date').value = today;
+
+  loadPortalData();
+};
+
+function loadPortalData() {
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (r.success) {
+        ALL_SERVICES = r.services || [];
+        ALL_STYLISTS = r.stylists || [];
+        ALL_APPOINTMENTS = r.appointments || [];
+        SETTINGS = r.settings || {};
+        // Update salon name
+        if (SETTINGS.salonName) {
+          var name = SETTINGS.salonName;
+          document.getElementById('salon-name').textContent = name;
+          document.title = 'Book at ' + name;
+        }
+        renderServices('');
+        renderStylists();
+      } else {
+        showError('svc-grid', 'Could not load services. Please try again.');
+      }
+    })
+    .withFailureHandler(function(e) {
+      showError('svc-grid', 'Connection error: ' + e.message);
+    })
+    .getPortalData();
+}
+
+// ─── STEP NAVIGATION ─────────────────────────────────────────────────────────
+function goTo(step) {
+  // Validate before moving forward
+  if (step === 2 && !BOOKING.service) { toast('Please select a service first'); return; }
+  if (step === 3 && !BOOKING.stylist) { toast('Please select a stylist'); return; }
+  if (step === 4 && (!BOOKING.date || !BOOKING.time)) { toast('Please select a date and time'); return; }
+  if (step === 5) {
+    var name = document.getElementById('client-name').value.trim();
+    var phone = document.getElementById('client-phone').value.trim();
+    if (!name || !phone) {
+      document.getElementById('details-error').textContent = 'Name and phone number are required.';
+      document.getElementById('details-error').style.display = 'block';
+      return;
+    }
+    document.getElementById('details-error').style.display = 'none';
+    BOOKING.clientName = name;
+    BOOKING.clientPhone = phone;
+    BOOKING.clientEmail = document.getElementById('client-email').value;
+    BOOKING.clientNotes = document.getElementById('client-notes').value;
+    renderSummary();
+  }
+  if (step === 3) loadTimeSlots();
+
+  BOOKING.currentStep = step;
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('section-' + step).classList.add('active');
+  updateStepsBar(step);
+  window.scrollTo(0, 0);
+}
+
+function updateStepsBar(current) {
+  for (var i = 1; i <= 5; i++) {
+    var el = document.getElementById('step' + i);
+    el.classList.remove('active', 'done');
+    if (i < current) el.classList.add('done');
+    else if (i === current) el.classList.add('active');
+    if (i < 5) {
+      var conn = document.getElementById('conn' + i);
+      conn.classList.toggle('done', i < current);
+    }
+  }
+}
+
+// ─── STEP 1: SERVICES ─────────────────────────────────────────────────────────
+function renderServices(cat) {
+  var filtered = ALL_SERVICES.filter(function(s) {
+    return s.status === 'Active' && s.type === 'Service' && (!cat || s.category === cat);
+  });
+
+  // Build category tabs
+  var cats = ['All'];
+  ALL_SERVICES.filter(function(s){ return s.type==='Service'&&s.status==='Active'; }).forEach(function(s) {
+    if (cats.indexOf(s.category) === -1) cats.push(s.category);
+  });
+  document.getElementById('cat-tabs').innerHTML = cats.map(function(c) {
+    return '<div class="filter-tab'+((!cat&&c==='All')||(cat===c)?' active':'')+'" onclick="renderServices(\''+(c==='All'?'':c)+'\')">'+c+'</div>';
+  }).join('');
+
+  if (!filtered.length) {
+    document.getElementById('svc-grid').innerHTML = '<div class="loading" style="grid-column:1/-1">No services found</div>';
+    return;
+  }
+
+  document.getElementById('svc-grid').innerHTML = filtered.map(function(s) {
+    var imgHtml = s.imageUrl
+      ? '<img src="'+s.imageUrl+'" alt="'+s.name+'" onerror="this.parentElement.innerHTML=\'<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:32px\'>\'+\''+s.emoji+'\'+\'</div>\'">'
+      : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:32px">'+s.emoji+'</div>';
+    var selected = BOOKING.service && BOOKING.service.id === s.id ? ' selected' : '';
+    return '<div class="svc-tile'+selected+'" onclick="selectService(\''+s.id+'\')">'+
+      '<div class="svc-img">'+imgHtml+'</div>'+
+      '<div class="svc-info">'+
+        '<div class="svc-cat">'+s.category+'</div>'+
+        '<div class="svc-name">'+s.name+'</div>'+
+        '<div class="svc-meta">'+
+          '<div class="svc-price">KES '+Number(s.price).toLocaleString()+'</div>'+
+          (s.duration ? '<div class="svc-dur">'+s.duration+'min</div>' : '')+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function selectService(id) {
+  BOOKING.service = ALL_SERVICES.find(function(s){ return s.id === id; });
+  // Update UI
+  document.querySelectorAll('.svc-tile').forEach(function(t){ t.classList.remove('selected'); });
+  event.currentTarget.classList.add('selected');
+  setTimeout(function(){ goTo(2); }, 300);
+}
+
+// ─── STEP 2: STYLISTS ─────────────────────────────────────────────────────────
+function renderStylists() {
+  var html = '<div class="stylist-tile any'+(BOOKING.stylist&&BOOKING.stylist.id==='any'?' selected':'')+'" onclick="selectStylist(\'any\',\'Any Available\',\'First Available\')">'+
+    '<div class="st-avatar" style="background:linear-gradient(135deg,var(--gold),var(--gold2));font-size:28px">✨</div>'+
+    '<div class="st-name">Any Stylist</div>'+
+    '<div class="st-role">First Available</div>'+
+    '<div class="st-spec">Assign automatically</div>'+
+  '</div>';
+
+  html += ALL_STYLISTS.map(function(s) {
+    var selected = BOOKING.stylist && BOOKING.stylist.id === s.id ? ' selected' : '';
+    return '<div class="stylist-tile'+selected+'" onclick="selectStylist(\''+s.id+'\',\''+s.name+'\',\''+s.role+'\')">'+
+      '<div class="st-avatar">'+s.name.charAt(0)+'</div>'+
+      '<div class="st-name">'+s.name+'</div>'+
+      '<div class="st-role">'+s.role+'</div>'+
+      '<div class="st-spec">'+s.specialties+'</div>'+
+    '</div>';
+  }).join('');
+
+  document.getElementById('stylist-grid').innerHTML = html;
+}
+
+function selectStylist(id, name, role) {
+  BOOKING.stylist = { id: id, name: name, role: role };
+  document.querySelectorAll('.stylist-tile').forEach(function(t){ t.classList.remove('selected'); });
+  event.currentTarget.classList.add('selected');
+  setTimeout(function(){ goTo(3); }, 300);
+}
+
+// ─── STEP 3: DATE & TIME ─────────────────────────────────────────────────────
+var TIME_SLOTS = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
+
+function loadTimeSlots() {
+  var date = document.getElementById('appt-date').value;
+  if (!date) return;
+  BOOKING.date = date;
+  BOOKING.time = null;
+
+  var stylistId = BOOKING.stylist ? BOOKING.stylist.id : 'any';
+  var duration = BOOKING.service ? (parseInt(BOOKING.service.duration) || 60) : 60;
+
+  // Get booked slots for this stylist on this date
+  var bookedRanges = [];
+  ALL_APPOINTMENTS.forEach(function(a) {
+    if (a.date !== date) return;
+    if (a.status === 'Cancelled') return;
+    if (stylistId !== 'any' && a.stylistId !== stylistId) return;
+    var start = timeToMins(a.time);
+    var end = start + (parseInt(a.duration) || 60);
+    bookedRanges.push({ start: start, end: end });
+  });
+
+  document.getElementById('time-grid').innerHTML = TIME_SLOTS.map(function(t) {
+    var slotStart = timeToMins(t);
+    var slotEnd = slotStart + duration;
+    // Check if this slot conflicts with any booked range
+    var isBooked = bookedRanges.some(function(r) {
+      return slotStart < r.end && slotEnd > r.start;
+    });
+    // Don't show past times for today
+    var today = new Date().toISOString().slice(0,10);
+    var isPast = false;
+    if (date === today) {
+      var now = new Date();
+      var nowMins = now.getHours() * 60 + now.getMinutes();
+      if (slotStart <= nowMins) isPast = true;
+    }
+    if (isPast) return '';
+    var selected = BOOKING.time === t ? ' selected' : '';
+    return '<div class="time-slot'+(isBooked?' booked':selected)+'" onclick="'+(isBooked?'':'selectTime(\''+t+'\')')+'">'+t+(isBooked?'<br><span style="font-size:9px">Booked</span>':'')+'</div>';
+  }).join('');
+
+  var grid = document.getElementById('time-grid');
+  if (!grid.innerHTML.replace(/\s/g,'')) {
+    grid.innerHTML = '<div class="no-slots">No available times for this date.<br>Please try a different date.</div>';
+  }
+}
+
+function selectTime(time) {
+  BOOKING.time = time;
+  document.querySelectorAll('.time-slot').forEach(function(t){ t.classList.remove('selected'); });
+  event.currentTarget.classList.add('selected');
+  setTimeout(function(){ goTo(4); }, 300);
+}
+
+function timeToMins(t) {
+  var parts = String(t).split(':');
+  return parseInt(parts[0]) * 60 + parseInt(parts[1] || 0);
+}
+
+// ─── STEP 5: SUMMARY ─────────────────────────────────────────────────────────
+function renderSummary() {
+  var d = new Date(BOOKING.date);
+  var dateStr = d.toLocaleDateString('en-KE', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('summary-card').innerHTML =
+    '<div class="s-row"><span class="s-label">Service</span><span class="s-value">'+BOOKING.service.name+'</span></div>'+
+    '<div class="s-row"><span class="s-label">Stylist</span><span class="s-value">'+BOOKING.stylist.name+'</span></div>'+
+    '<div class="s-row"><span class="s-label">Date</span><span class="s-value">'+dateStr+'</span></div>'+
+    '<div class="s-row"><span class="s-label">Time</span><span class="s-value">'+BOOKING.time+'</span></div>'+
+    '<div class="s-row"><span class="s-label">Duration</span><span class="s-value">'+(BOOKING.service.duration||60)+' minutes</span></div>'+
+    '<div class="s-row"><span class="s-label">Client</span><span class="s-value">'+BOOKING.clientName+'</span></div>'+
+    '<div class="s-row"><span class="s-label">Phone</span><span class="s-value">'+BOOKING.clientPhone+'</span></div>'+
+    (BOOKING.clientNotes?'<div class="s-row"><span class="s-label">Notes</span><span class="s-value" style="max-width:200px;text-align:right">'+BOOKING.clientNotes+'</span></div>':'')+
+    '<div class="s-row" style="padding-top:14px;border-top:2px solid var(--rule)"><span class="s-label" style="font-weight:700;color:var(--plum)">Service Price</span><span class="s-value s-total">KES '+Number(BOOKING.service.price).toLocaleString()+'</span></div>';
+}
+
+// ─── CONFIRM BOOKING ─────────────────────────────────────────────────────────
+function confirmBooking() {
+  var btn = document.getElementById('confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'Booking...';
+  document.getElementById('confirm-error').style.display = 'none';
+
+  // Resolve stylist if "any"
+  var stylistId = BOOKING.stylist.id;
+  var stylistName = BOOKING.stylist.name;
+  if (stylistId === 'any') {
+    // Assign first available stylist
+    if (ALL_STYLISTS.length > 0) {
+      stylistId = ALL_STYLISTS[0].id;
+      stylistName = ALL_STYLISTS[0].name;
+    }
+  }
+
+  var apptData = {
+    client: BOOKING.clientName,
+    phone: BOOKING.clientPhone,
+    email: BOOKING.clientEmail || '',
+    date: BOOKING.date,
+    time: BOOKING.time,
+    stylistId: stylistId,
+    stylist: stylistName,
+    serviceId: BOOKING.service.id,
+    service: BOOKING.service.name,
+    duration: BOOKING.service.duration || 60,
+    notes: BOOKING.clientNotes || '',
+    bookedOnline: true
+  };
+
+  google.script.run
+    .withSuccessHandler(function(r) {
+      if (r.success) {
+        // Show success
+        document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+        document.getElementById('section-success').classList.add('active');
+        document.querySelectorAll('.steps-bar .step').forEach(function(s){ s.classList.remove('active'); s.classList.add('done'); });
+        document.getElementById('appt-ref').textContent = r.id || 'CONFIRMED';
+        var d = new Date(BOOKING.date);
+        document.getElementById('success-details').innerHTML =
+          '<strong>'+BOOKING.service.name+'</strong><br>'+
+          d.toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long'})+' at '+BOOKING.time+'<br>'+
+          'with '+stylistName;
+        window.scrollTo(0,0);
+      } else {
+        if (r.conflict) {
+          document.getElementById('confirm-error').textContent = '⚠️ ' + r.error + ' Please go back and choose a different time.';
+        } else {
+          document.getElementById('confirm-error').textContent = 'Booking failed: ' + r.error;
+        }
+        document.getElementById('confirm-error').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Confirm Appointment ✓';
+      }
+    })
+    .withFailureHandler(function(e) {
+      document.getElementById('confirm-error').textContent = 'Connection error. Please try again.';
+      document.getElementById('confirm-error').style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Confirm Appointment ✓';
+    })
+    .clientBookAppointment(apptData);
+}
+
+// ─── RESET ───────────────────────────────────────────────────────────────────
+function resetBooking() {
+  BOOKING = { service:null, stylist:null, date:null, time:null, clientName:'', clientPhone:'', clientEmail:'', clientNotes:'', currentStep:1 };
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('section-1').classList.add('active');
+  updateStepsBar(1);
+  ['client-name','client-phone','client-email','client-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+  var today = new Date().toISOString().slice(0,10);
+  document.getElementById('appt-date').value = today;
+  renderServices('');
+  renderStylists();
+  window.scrollTo(0,0);
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function toast(msg) {
+  var el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.getElementById('toast-wrap').appendChild(el);
+  setTimeout(function(){ el.remove(); }, 3000);
+}
+
+function showError(containerId, msg) {
+  document.getElementById(containerId).innerHTML = '<div style="padding:30px;text-align:center;color:var(--red)">'+msg+'</div>';
+}
+</script>
+</body>
+</html>

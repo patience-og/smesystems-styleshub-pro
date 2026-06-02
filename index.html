@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StylesHub Pro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --plum:#2D0A31;--plum2:#3D1242;--plum3:#4E1A55;
+  --rose:#C9847A;--rose2:#E8A598;--rose3:#F5C5BC;
+  --gold:#C9A96E;--gold2:#E0C08A;
+  --cream:#FDF8F5;--light:#F5EEE9;--rule:#E8DDD6;
+  --ink:#1A0A1C;--muted:#9A8090;--slate:#6B5570;
+  --green:#2E7D5E;--red:#C0392B;--amber:#D97706;
+  --sidebar-w:240px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Jost',sans-serif;font-size:14px;background:var(--cream);color:var(--ink)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--light)}
+::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px}
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--plum) 0%,var(--plum2) 60%,#1A0520 100%);position:relative;overflow:hidden}
+#login-screen::before{content:'✦';position:absolute;font-size:400px;color:rgba(201,132,122,.04);top:-80px;right:-80px;line-height:1;pointer-events:none}
+.login-card{background:rgba(253,248,245,.97);border-radius:16px;padding:48px 44px;width:420px;box-shadow:0 40px 100px rgba(0,0,0,.5),0 0 0 1px rgba(201,132,122,.15);position:relative;z-index:1}
+.login-logo{text-align:center;margin-bottom:36px}
+.login-logo .brand{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:700;color:var(--plum);letter-spacing:1px;line-height:1}
+.login-logo .brand span{color:var(--rose)}
+.login-logo .sub{font-size:11px;color:var(--muted);letter-spacing:4px;text-transform:uppercase;margin-top:6px}
+.login-logo .divider{width:40px;height:1px;background:linear-gradient(90deg,transparent,var(--rose),transparent);margin:14px auto}
+.login-logo .pill{display:inline-block;background:var(--plum);color:var(--rose2);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:4px 16px;border-radius:20px;margin-top:4px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:10px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:.15em;margin-bottom:7px}
+.form-group input{width:100%;padding:12px 16px;border:1.5px solid var(--rule);border-radius:8px;font-size:14px;font-family:'Jost',sans-serif;outline:none;transition:all .2s;background:#fff;color:var(--ink)}
+.form-group input:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,132,122,.1)}
+.btn-login{width:100%;padding:14px;background:linear-gradient(135deg,var(--plum2),var(--plum3));color:#fff;border:none;border-radius:8px;font-family:'Jost',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(45,10,49,.3)}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(45,10,49,.4)}
+.login-error{display:none;background:#FEF2F2;border-left:3px solid var(--red);color:var(--red);padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:14px}
+.login-hint{margin-top:18px;padding:12px 16px;background:var(--light);border-radius:8px;font-size:11px;color:var(--muted);text-align:center;line-height:1.8}
+#app{display:none;height:100vh;flex-direction:column}
+#app.visible{display:flex}
+.topbar{height:58px;background:linear-gradient(90deg,var(--plum) 0%,var(--plum2) 100%);display:flex;align-items:center;padding:0 24px;gap:16px;flex-shrink:0;box-shadow:0 2px 20px rgba(0,0,0,.3)}
+.topbar-brand{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:1px}
+.topbar-brand span{color:var(--rose2)}
+.topbar-spacer{flex:1}
+.user-badge{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);padding:6px 14px;border-radius:20px}
+.user-badge .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+.user-badge .info .name{font-size:12px;font-weight:600;color:#fff}
+.user-badge .info .role{font-size:10px;color:rgba(255,255,255,.5);text-transform:capitalize}
+.btn-logout{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.15);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;transition:.2s}
+.btn-logout:hover{background:rgba(255,255,255,.2)}
+.main-layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:var(--sidebar-w);background:var(--plum);flex-shrink:0;display:flex;flex-direction:column;box-shadow:2px 0 20px rgba(0,0,0,.2)}
+.sidebar-nav{flex:1;padding:16px 0;overflow-y:auto}
+.nav-section{font-size:9px;font-weight:600;color:rgba(255,255,255,.25);letter-spacing:.25em;text-transform:uppercase;padding:16px 24px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 24px;cursor:pointer;transition:all .15s;color:rgba(255,255,255,.45);border-left:3px solid transparent;font-size:13px;font-weight:400}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.nav-item.active{background:rgba(201,132,122,.15);color:var(--rose2);border-left-color:var(--rose);font-weight:600}
+.nav-item .icon{font-size:16px;width:22px;text-align:center}
+.sidebar-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.2);line-height:1.8}
+.content{flex:1;overflow-y:auto;background:var(--cream)}
+.view{display:none;padding:28px}
+.view.active{display:block}
+.view-header{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.view-title{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:var(--plum);letter-spacing:.5px;line-height:1}
+.view-sub{font-size:12px;color:var(--muted);margin-top:5px}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 16px rgba(45,10,49,.06);overflow:hidden;border:1px solid rgba(232,221,214,.5)}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--light);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--plum);letter-spacing:.3px}
+.card-body{padding:20px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:16px;margin-bottom:24px}
+.kpi-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 16px rgba(45,10,49,.06);border:1px solid rgba(232,221,214,.5);border-top:3px solid var(--rose);position:relative;overflow:hidden}
+.kpi-card::after{content:'';position:absolute;bottom:-15px;right:-15px;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,rgba(201,132,122,.06),transparent)}
+.kpi-card.gold{border-top-color:var(--gold)}.kpi-card.plum{border-top-color:var(--plum3)}.kpi-card.green{border-top-color:var(--green)}
+.kpi-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+.kpi-value{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:var(--plum);line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:6px}
+table{width:100%;border-collapse:collapse}
+.table-wrap{overflow-x:auto}
+thead tr{background:linear-gradient(90deg,var(--plum),var(--plum2))}
+thead th{padding:12px 16px;text-align:left;font-size:10px;font-weight:600;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.12em;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--light);transition:background .1s}
+tbody tr:hover{background:var(--light)}
+tbody td{padding:12px 16px;font-size:13px;color:var(--ink)}
+.btn{padding:9px 20px;border:none;border-radius:8px;font-size:12px;font-weight:600;font-family:'Jost',sans-serif;letter-spacing:.5px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:linear-gradient(135deg,var(--plum2),var(--plum3));color:#fff;box-shadow:0 2px 8px rgba(45,10,49,.2)}.btn-primary:hover{transform:translateY(-1px)}
+.btn-secondary{background:var(--light);color:var(--plum);border:1px solid var(--rule)}.btn-secondary:hover{background:var(--rule)}
+.btn-danger{background:#FEE2E2;color:var(--red);border:1px solid #FECACA}.btn-danger:hover{background:#FECACA}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff}.btn-gold:hover{transform:translateY(-1px)}
+.btn-sm{padding:5px 12px;font-size:11px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap}
+.badge-green{background:#D1FAE5;color:#065F46}.badge-red{background:#FEE2E2;color:#991B1B}
+.badge-amber{background:#FEF3C7;color:#92400E}.badge-rose{background:#FCE7E4;color:#9B3A2E}
+.badge-plum{background:#EDE0F0;color:#4E1A55}.badge-gold{background:#FEF3C7;color:#7D5A00}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.cols3{grid-template-columns:1fr 1fr 1fr}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:10px 14px;border:1.5px solid var(--rule);border-radius:8px;font-size:13px;color:var(--ink);background:#fff;outline:none;transition:all .2s;font-family:'Jost',sans-serif}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,132,122,.1)}
+.field textarea{resize:vertical;min-height:72px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(45,10,49,.6);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,.3)}
+.modal-header{background:linear-gradient(135deg,var(--plum),var(--plum2));padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--rose2);letter-spacing:.5px}
+.modal-close{background:none;border:none;color:rgba(255,255,255,.4);font-size:20px;cursor:pointer}
+.modal-close:hover{color:#fff}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--light);display:flex;gap:10px;justify-content:flex-end}
+.toolbar{display:flex;gap:12px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.search-box{flex:1;min-width:200px;display:flex;align-items:center;background:#fff;border:1.5px solid var(--rule);border-radius:8px;padding:0 14px;gap:8px}
+.search-box input{border:none;outline:none;padding:9px 0;font-size:13px;color:var(--ink);width:100%;background:transparent;font-family:'Jost',sans-serif}
+.search-box:focus-within{border-color:var(--rose)}
+.sel-input{padding:10px 14px;border:1.5px solid var(--rule);border-radius:8px;font-size:13px;outline:none;background:#fff;color:var(--ink);font-family:'Jost',sans-serif}
+.sel-input:focus{border-color:var(--rose)}
+.chart-wrap{position:relative;height:220px}
+.pos-layout{display:grid;grid-template-columns:1fr 380px;gap:20px;height:calc(100vh - 130px)}
+.pos-left{overflow-y:auto}
+.pos-right{background:linear-gradient(180deg,var(--plum) 0%,var(--plum2) 100%);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;color:#fff;box-shadow:0 4px 20px rgba(45,10,49,.3)}
+.service-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.svc-tile{background:#fff;border-radius:10px;overflow:hidden;cursor:pointer;transition:all .2s;border:2px solid transparent;box-shadow:0 2px 8px rgba(45,10,49,.06)}
+.svc-tile:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:0 8px 24px rgba(45,10,49,.12)}
+.svc-tile.out{opacity:.4;cursor:not-allowed}
+.svc-tile .svc-img{width:100%;height:110px;background:linear-gradient(135deg,var(--light),var(--rule));display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden}
+.svc-tile .svc-img img{width:100%;height:100%;object-fit:cover}
+.svc-tile .svc-info{padding:10px 12px}
+.svc-tile .svc-type{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.svc-tile .svc-name{font-size:12px;font-weight:700;color:var(--plum);line-height:1.3;margin-bottom:4px}
+.svc-tile .svc-price{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:700;color:var(--rose)}
+.svc-tile .svc-dur{font-size:10px;color:var(--muted)}
+.cart-section-title{font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.15em}
+.cart-items{flex:1;overflow-y:auto}
+.cart-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.cart-item .ci-name{flex:1;font-size:12px;font-weight:600;line-height:1.3;color:rgba(255,255,255,.9)}
+.cart-item .ci-qty{display:flex;align-items:center;gap:6px}
+.cart-item .ci-qty button{width:22px;height:22px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.1s}
+.cart-item .ci-qty button:hover{background:var(--rose)}
+.cart-item .ci-qty span{min-width:20px;text-align:center;font-size:13px;font-weight:700}
+.cart-item .ci-total{font-size:13px;font-weight:700;color:var(--rose2);min-width:75px;text-align:right}
+.cart-item .ci-del{background:none;border:none;color:rgba(255,255,255,.25);cursor:pointer;font-size:14px;padding:2px}
+.cart-item .ci-del:hover{color:var(--red)}
+.cart-empty{text-align:center;padding:30px;color:rgba(255,255,255,.25);font-size:13px;line-height:2}
+.cart-summary{border-top:1px solid rgba(255,255,255,.1);padding-top:12px}
+.cart-summary .row{display:flex;justify-content:space-between;padding:3px 0;font-size:13px;color:rgba(255,255,255,.6)}
+.cart-summary .total-row{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--rose2);padding-top:8px}
+.pos-payment{display:flex;flex-direction:column;gap:8px}
+.pay-methods{display:flex;gap:6px;flex-wrap:wrap}
+.pay-method{flex:1;min-width:60px;padding:8px 4px;background:rgba(255,255,255,.08);border:2px solid transparent;border-radius:8px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;transition:all .15s;color:rgba(255,255,255,.5)}
+.pay-method:hover{background:rgba(255,255,255,.12);color:#fff}
+.pay-method.active{border-color:var(--rose);background:rgba(201,132,122,.2);color:#fff}
+.customer-row{display:flex;gap:8px}
+.customer-row input{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:9px 12px;color:#fff;font-size:12px;outline:none;font-family:'Jost',sans-serif}
+.customer-row input::placeholder{color:rgba(255,255,255,.3)}
+.customer-row input:focus{border-color:var(--rose2)}
+.btn-charge{padding:15px;background:linear-gradient(135deg,var(--rose),#B5726A);border:none;border-radius:10px;color:#fff;font-family:'Jost',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;width:100%;transition:all .2s;box-shadow:0 4px 16px rgba(201,132,122,.4)}
+.btn-charge:hover{transform:translateY(-1px)}
+.btn-charge:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.amount-input{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:9px 12px;color:#fff;font-size:13px;outline:none;width:100%;font-family:'Jost',sans-serif}
+.amount-input::placeholder{color:rgba(255,255,255,.3)}
+.appt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.appt-card{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 2px 12px rgba(45,10,49,.06);border:1px solid var(--rule);border-left:4px solid var(--rose);transition:all .2s}
+.appt-card:hover{box-shadow:0 4px 20px rgba(45,10,49,.1);transform:translateY(-1px)}
+.appt-card.confirmed{border-left-color:var(--green)}
+.appt-card.cancelled{border-left-color:var(--red);opacity:.6}
+.appt-card.completed{border-left-color:var(--gold)}
+.appt-card .ac-time{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--plum);margin-bottom:4px}
+.appt-card .ac-client{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.appt-card .ac-service{font-size:12px;color:var(--muted);margin-bottom:8px}
+.appt-card .ac-stylist{font-size:11px;color:var(--slate);background:var(--light);padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:8px}
+.appt-card .ac-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.stylist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.stylist-card{background:#fff;border-radius:12px;padding:20px;text-align:center;box-shadow:0 2px 12px rgba(45,10,49,.06);border:1px solid var(--rule)}
+.stylist-card .sc-avatar{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--rose3),var(--rose));margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:700;color:#fff;box-shadow:0 4px 12px rgba(201,132,122,.3)}
+.stylist-card .sc-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:var(--plum);margin-bottom:4px}
+.stylist-card .sc-role{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.stylist-card .sc-stats{display:flex;justify-content:center;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--light)}
+.stylist-card .sc-stat .val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--plum)}
+.stylist-card .sc-stat .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.date-nav{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.date-nav button{background:var(--light);border:1px solid var(--rule);color:var(--plum);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.date-nav button:hover{background:var(--rule)}
+.date-nav .date-label{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--plum)}
+.date-nav input[type=date]{padding:7px 12px;border:1.5px solid var(--rule);border-radius:8px;font-family:'Jost',sans-serif;font-size:13px;color:var(--ink);outline:none;background:#fff}
+.date-nav input[type=date]:focus{border-color:var(--rose)}
+.receipt{font-family:'Jost',sans-serif;font-size:12px;background:#fff;padding:24px;max-width:320px;margin:0 auto;line-height:1.7}
+.receipt .r-logo{text-align:center;font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--plum);margin-bottom:4px;letter-spacing:1px}
+.receipt .r-center{text-align:center;color:#888;font-size:11px;margin-bottom:12px}
+.receipt .r-divider{border-top:1px dashed #ddd;margin:8px 0}
+.receipt .r-row{display:flex;justify-content:space-between}
+.receipt .r-total{font-size:14px;font-weight:700;border-top:2px solid var(--plum);padding-top:6px;margin-top:6px;color:var(--plum)}
+.receipt .r-footer{text-align:center;color:#aaa;margin-top:12px;font-size:11px;font-style:italic}
+.dash-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-top:20px}
+.alert-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.alert-tile{flex:1;min-width:140px;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;background:#fff;box-shadow:0 2px 8px rgba(45,10,49,.06)}
+.alert-tile.rose{border-left:4px solid var(--rose)}.alert-tile.gold{border-left:4px solid var(--gold)}
+.alert-tile.green{border-left:4px solid var(--green)}.alert-tile.plum{border-left:4px solid var(--plum3)}
+.alert-tile .at-icon{font-size:22px}
+.alert-tile .at-count{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--plum)}
+.alert-tile .at-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);gap:10px;font-size:13px}
+.spinner{width:20px;height:20px;border:2px solid var(--rule);border-top-color:var(--rose);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 18px;border-radius:10px;color:#fff;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:slideIn .3s ease;max-width:320px}
+.toast.success{background:linear-gradient(135deg,var(--plum2),var(--plum3))}.toast.error{background:var(--red)}.toast.info{background:var(--slate)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:none;opacity:1}}
+@media(max-width:768px){.sidebar{width:60px}.nav-item .label,.nav-section{display:none}.pos-layout,.dash-grid,.form-row{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="brand">Styles<span>Hub</span></div>
+      <div class="sub">Salon Management System</div>
+      <div class="divider"></div>
+      <div class="pill">Pro Edition</div>
+    </div>
+    <div id="login-error" class="login-error"></div>
+    <div class="form-group"><label>Username</label><input type="text" id="inp-user" placeholder="Enter username" autocomplete="username"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="inp-pass" placeholder="Enter password" autocomplete="current-password"></div>
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <div class="login-hint">admin / admin123 &nbsp;·&nbsp; cashier / cashier123</div>
+  </div>
+</div>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">Styles<span>Hub</span> Pro</div>
+    <div class="topbar-spacer"></div>
+    <div class="user-badge">
+      <div class="avatar" id="user-avatar">A</div>
+      <div class="info"><div class="name" id="user-name">Admin</div><div class="role" id="user-role">admin</div></div>
+    </div>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
+  </div>
+  <div class="main-layout">
+    <nav class="sidebar">
+      <div class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <div class="nav-item active" onclick="showView('dashboard',this)"><span class="icon">📊</span><span class="label">Dashboard</span></div>
+        <div class="nav-item" onclick="showView('appointments',this)"><span class="icon">📅</span><span class="label">Appointments</span></div>
+        <div class="nav-item" onclick="showView('pos',this)"><span class="icon">💅</span><span class="label">Point of Sale</span></div>
+        <div class="nav-section">Management</div>
+        <div class="nav-item" onclick="showView('services',this)"><span class="icon">✨</span><span class="label">Services & Products</span></div>
+        <div class="nav-item" onclick="showView('stylists',this)"><span class="icon">👩‍🎨</span><span class="label">Stylists</span></div>
+        <div class="nav-item" onclick="showView('clients',this)"><span class="icon">👥</span><span class="label">Clients</span></div>
+        <div class="nav-item" onclick="showView('sales',this)"><span class="icon">🧾</span><span class="label">Sales History</span></div>
+        <div class="nav-item" onclick="showView('expenses',this)"><span class="icon">💰</span><span class="label">Expenses</span></div>
+        <div class="nav-section">Analytics</div>
+        <div class="nav-item" onclick="showView('reports',this)"><span class="icon">📈</span><span class="label">Reports</span></div>
+        <div class="nav-section">System</div>
+        <div class="nav-item" onclick="showView('settings',this)"><span class="icon">⚙️</span><span class="label">Settings</span></div>
+      </div>
+      <div class="sidebar-footer">SME Systems Studio<br>Patience Oduori</div>
+    </nav>
+    <div class="content">
+      <div id="view-dashboard" class="view active">
+        <div class="view-header"><div><div class="view-title">Dashboard</div><div class="view-sub">Live salon overview — <span id="dash-date"></span></div></div></div>
+        <div class="kpi-grid" id="kpi-grid"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+        <div class="alert-row" id="alert-row"></div>
+        <div class="dash-grid">
+          <div class="card"><div class="card-header"><div class="card-title">Revenue — Last 7 Days</div></div><div class="card-body"><div class="chart-wrap"><canvas id="trend-chart"></canvas></div></div></div>
+          <div class="card"><div class="card-header"><div class="card-title">Revenue by Service</div></div><div class="card-body"><div class="chart-wrap"><canvas id="cat-chart"></canvas></div></div></div>
+        </div>
+        <div class="card" style="margin-top:20px"><div class="card-header"><div class="card-title">Recent Transactions</div></div><div class="table-wrap" id="recent-sales-table"></div></div>
+      </div>
+      <div id="view-appointments" class="view">
+        <div class="view-header">
+          <div><div class="view-title">Appointments</div><div class="view-sub">Manage bookings and schedules</div></div>
+          <button class="btn btn-primary" onclick="openBookAppt()">+ Book Appointment</button>
+        </div>
+        <div class="date-nav">
+          <button onclick="changeApptDate(-1)">&#8249;</button>
+          <input type="date" id="appt-date-filter" onchange="loadAppointments()">
+          <button onclick="changeApptDate(1)">&#8250;</button>
+          <span class="date-label" id="appt-date-label"></span>
+          <button class="btn btn-secondary btn-sm" onclick="setApptDateToday()">Today</button>
+        </div>
+        <div id="appt-container"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      </div>
+      <div id="view-pos" class="view">
+        <div class="view-header"><div><div class="view-title">Point of Sale</div><div class="view-sub">Add services and products to cart</div></div></div>
+        <div class="pos-layout">
+          <div class="pos-left">
+            <div class="toolbar">
+              <div class="search-box"><span>🔍</span><input type="text" id="pos-search" placeholder="Search services & products..." oninput="filterPOS(this.value)"></div>
+              <select class="sel-input" id="pos-type-filter" onchange="filterPOS(document.getElementById('pos-search').value)"><option value="">All</option><option value="Service">Services</option><option value="Product">Products</option></select>
+              <select class="sel-input" id="pos-cat-filter" onchange="filterPOS(document.getElementById('pos-search').value)"><option value="">All Categories</option><option>Hair</option><option>Nails</option><option>Skin</option><option>Makeup</option><option>Lashes</option><option>Braids</option><option>Treatment</option><option>Product</option></select>
+            </div>
+            <div class="service-grid" id="service-grid"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+          </div>
+          <div class="pos-right">
+            <div class="cart-section-title">Cart</div>
+            <div class="cart-items" id="cart-items"><div class="cart-empty">Cart is empty<br>Tap a service to add</div></div>
+            <div class="cart-summary" id="cart-summary" style="display:none">
+              <div class="row"><span>Subtotal</span><span id="cart-subtotal">KES 0</span></div>
+              <div class="row total-row"><span>TOTAL</span><span id="cart-total">KES 0</span></div>
+            </div>
+            <div class="pos-payment">
+              <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em">Payment</div>
+              <div class="pay-methods">
+                <div class="pay-method active" onclick="setPayMethod('M-Pesa',this)">M-Pesa</div>
+                <div class="pay-method" onclick="setPayMethod('Cash',this)">Cash</div>
+                <div class="pay-method" onclick="setPayMethod('Card',this)">Card</div>
+              </div>
+              <div id="cash-row" style="display:none">
+                <input type="number" class="amount-input" id="amount-paid" placeholder="Amount received" oninput="calcChange()">
+                <div id="change-display" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;text-align:right"></div>
+              </div>
+              <div class="customer-row">
+                <input type="text" id="cust-name" placeholder="Client name (optional)">
+                <input type="text" id="cust-phone" placeholder="Phone">
+              </div>
+              <select class="amount-input" id="pos-stylist" style="margin-bottom:0"><option value="">Assign stylist (optional)</option></select>
+              <button class="btn-charge" id="btn-charge" onclick="processSale()" disabled>CHARGE — <span id="charge-amount">KES 0</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="view-services" class="view">
+        <div class="view-header">
+          <div><div class="view-title">Services & Products</div><div class="view-sub">Manage your menu with images</div></div>
+          <button class="btn btn-primary" onclick="openAddService()">+ Add Item</button>
+        </div>
+        <div class="toolbar">
+          <div class="search-box"><span>🔍</span><input type="text" id="svc-search" placeholder="Search..." oninput="filterServices(this.value)"></div>
+          <select class="sel-input" id="svc-type-filter" onchange="filterServices(document.getElementById('svc-search').value)"><option value="">All Types</option><option value="Service">Services</option><option value="Product">Products</option></select>
+        </div>
+        <div class="service-grid" id="svc-manage-grid"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      </div>
+      <div id="view-stylists" class="view">
+        <div class="view-header">
+          <div><div class="view-title">Stylists</div><div class="view-sub">Team members and performance</div></div>
+          <button class="btn btn-primary" onclick="openAddStylist()">+ Add Stylist</button>
+        </div>
+        <div class="stylist-grid" id="stylist-grid"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      </div>
+      <div id="view-clients" class="view">
+        <div class="view-header"><div><div class="view-title">Clients</div><div class="view-sub">Client profiles and history</div></div></div>
+        <div class="toolbar">
+          <div class="search-box"><span>🔍</span><input type="text" id="client-search" placeholder="Search clients..." oninput="filterClients(this.value)"></div>
+          <button class="btn btn-primary" onclick="openAddClient()">+ Add Client</button>
+        </div>
+        <div class="card"><div class="table-wrap" id="client-table"><div class="loading"><div class="spinner"></div>Loading...</div></div></div>
+      </div>
+      <div id="view-sales" class="view">
+        <div class="view-header"><div><div class="view-title">Sales History</div><div class="view-sub">All transactions</div></div></div>
+        <div class="toolbar"><div class="search-box"><span>🔍</span><input type="text" id="sales-search" placeholder="Search..." oninput="filterSales(this.value)"></div></div>
+        <div class="card"><div class="table-wrap" id="sales-table"><div class="loading"><div class="spinner"></div>Loading...</div></div></div>
+      </div>
+      <div id="view-expenses" class="view">
+        <div class="view-header"><div><div class="view-title">Expenses</div><div class="view-sub">Track business costs</div></div></div>
+        <div class="toolbar">
+          <div class="search-box"><span>🔍</span><input type="text" id="exp-search" placeholder="Search expenses..." oninput="filterExpenses(this.value)"></div>
+          <button class="btn btn-primary" onclick="openAddExpense()">+ Add Expense</button>
+        </div>
+        <div class="card"><div class="table-wrap" id="exp-table"><div class="loading"><div class="spinner"></div>Loading...</div></div></div>
+      </div>
+      <div id="view-reports" class="view">
+        <div class="view-header"><div><div class="view-title">Reports</div><div class="view-sub">Financial performance</div></div></div>
+        <div class="form-row" style="max-width:500px;margin-bottom:20px">
+          <div class="field"><label>From Date</label><input type="date" id="rpt-start"></div>
+          <div class="field"><label>To Date</label><input type="date" id="rpt-end"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="runReport('pl')">Profit & Loss</button>
+          <button class="btn btn-secondary" onclick="runReport('sales')">Sales Report</button>
+          <button class="btn btn-secondary" onclick="runReport('stylist')">Stylist Performance</button>
+        </div>
+        <div id="report-output"></div>
+      </div>
+      <div id="view-settings" class="view">
+        <div class="view-header"><div><div class="view-title">Settings</div><div class="view-sub">Configure your salon system</div></div></div>
+        <div class="card" style="max-width:620px"><div class="card-header"><div class="card-title">Salon Details</div></div><div class="card-body" id="settings-form"><div class="loading"><div class="spinner"></div>Loading...</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-appt">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="appt-modal-title">Book Appointment</div><button class="modal-close" onclick="closeModal('modal-appt')">&#10005;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="appt-id">
+      <div class="form-row"><div class="field"><label>Client Name *</label><input type="text" id="appt-client" placeholder="Client name"></div><div class="field"><label>Phone</label><input type="text" id="appt-phone" placeholder="+254 7xx xxx xxx"></div></div>
+      <div class="form-row"><div class="field"><label>Date *</label><input type="date" id="appt-date"></div><div class="field"><label>Time *</label><input type="time" id="appt-time"></div></div>
+      <div class="form-row"><div class="field"><label>Stylist *</label><select id="appt-stylist"><option value="">Select stylist</option></select></div><div class="field"><label>Service *</label><select id="appt-service"><option value="">Select service</option></select></div></div>
+      <div class="field"><label>Duration (minutes)</label><input type="number" id="appt-duration" value="60" min="15" step="15"></div>
+      <div class="field"><label>Notes</label><textarea id="appt-notes" placeholder="Any special requests"></textarea></div>
+      <div id="appt-conflict-msg" style="display:none;background:#FEF3C7;border-left:3px solid var(--amber);padding:10px 14px;border-radius:6px;font-size:13px;color:#92400E;margin-top:8px"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-appt')">Cancel</button><button class="btn btn-primary" onclick="saveAppointment()">Confirm Booking</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-service">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="svc-modal-title">Add Service</div><button class="modal-close" onclick="closeModal('modal-service')">&#10005;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="svc-id">
+      <div class="form-row"><div class="field"><label>Name *</label><input type="text" id="svc-name" placeholder="e.g. Full Set Acrylic Nails"></div><div class="field"><label>Type *</label><select id="svc-type"><option value="Service">Service</option><option value="Product">Product</option></select></div></div>
+      <div class="form-row"><div class="field"><label>Category *</label><select id="svc-cat"><option>Hair</option><option>Nails</option><option>Skin</option><option>Makeup</option><option>Lashes</option><option>Braids</option><option>Treatment</option><option>Product</option></select></div><div class="field"><label>Duration (mins)</label><input type="number" id="svc-duration" value="60" min="0"></div></div>
+      <div class="form-row"><div class="field"><label>Price (KES) *</label><input type="number" id="svc-price" value="0"></div><div class="field"><label>Cost Price (KES)</label><input type="number" id="svc-cost" value="0"></div></div>
+      <div class="field"><label>Image URL</label><input type="text" id="svc-img" placeholder="https://..."></div>
+      <div class="field"><label>Emoji Icon</label><input type="text" id="svc-emoji" placeholder="💅" maxlength="4"></div>
+      <div class="field"><label>Description</label><textarea id="svc-desc" placeholder="Optional description"></textarea></div>
+      <div class="field"><label>Status</label><select id="svc-status"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-service')">Cancel</button><button class="btn btn-primary" onclick="saveService()">Save</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-stylist">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="sty-modal-title">Add Stylist</div><button class="modal-close" onclick="closeModal('modal-stylist')">&#10005;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="sty-id">
+      <div class="form-row"><div class="field"><label>Full Name *</label><input type="text" id="sty-name" placeholder="Stylist name"></div><div class="field"><label>Role</label><input type="text" id="sty-role" placeholder="e.g. Hair Stylist, Nail Tech"></div></div>
+      <div class="form-row"><div class="field"><label>Phone</label><input type="text" id="sty-phone" placeholder="+254 7xx xxx xxx"></div><div class="field"><label>Email</label><input type="email" id="sty-email" placeholder="email@example.com"></div></div>
+      <div class="field"><label>Specialties</label><input type="text" id="sty-specialties" placeholder="e.g. Hair, Braids, Color"></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-stylist')">Cancel</button><button class="btn btn-primary" onclick="saveStylist()">Save Stylist</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-client">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Add Client</div><button class="modal-close" onclick="closeModal('modal-client')">&#10005;</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="field"><label>Full Name *</label><input type="text" id="cl-name" placeholder="Client name"></div><div class="field"><label>Phone *</label><input type="text" id="cl-phone" placeholder="+254 7xx xxx xxx"></div></div>
+      <div class="form-row"><div class="field"><label>Email</label><input type="email" id="cl-email" placeholder="email@example.com"></div><div class="field"><label>Birthday</label><input type="date" id="cl-birthday"></div></div>
+      <div class="form-row"><div class="field"><label>Hair Type</label><select id="cl-hair"><option value="">Select</option><option>Natural</option><option>Relaxed</option><option>Colour Treated</option><option>Loc'd</option><option>Short</option><option>Other</option></select></div><div class="field"><label>Preferred Stylist</label><select id="cl-stylist"><option value="">No preference</option></select></div></div>
+      <div class="field"><label>Allergies / Notes</label><textarea id="cl-notes" placeholder="Allergies, sensitivities, preferences..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-client')">Cancel</button><button class="btn btn-primary" onclick="saveClient()">Save Client</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-expense">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="exp-modal-title">Add Expense</div><button class="modal-close" onclick="closeModal('modal-expense')">&#10005;</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="exp-id">
+      <div class="form-row"><div class="field"><label>Category *</label><select id="exp-cat"><option>Supplies</option><option>Utilities</option><option>Rent</option><option>Salaries</option><option>Products Purchase</option><option>Equipment</option><option>Marketing</option><option>Miscellaneous</option></select></div><div class="field"><label>Amount (KES) *</label><input type="number" id="exp-amount" min="0"></div></div>
+      <div class="field"><label>Description *</label><input type="text" id="exp-desc" placeholder="What was this for?"></div>
+      <div class="field"><label>Notes</label><textarea id="exp-notes" placeholder="Optional notes"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-expense')">Cancel</button><button class="btn btn-primary" onclick="saveExpense()">Save Expense</button></div>
+  </div>
+</div>
+<div class="modal-overlay" id="modal-receipt">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Receipt</div><button class="modal-close" onclick="closeModal('modal-receipt')">&#10005;</button></div>
+    <div class="modal-body" id="receipt-content"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-receipt')">Close</button><button class="btn btn-primary" onclick="window.print()">Print</button></div>
+  </div>
+</div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+var STATE={user:null,settings:{salonName:'StylesHub Pro',currency:'KES'},services:[],stylists:[],clients:[],sales:[],expenses:[],appointments:[],cart:[],payMethod:'M-Pesa',trendChart:null,catChart:null};
+
+function kes(n){return(STATE.settings.currency||'KES')+' '+Number(n||0).toLocaleString('en-KE',{minimumFractionDigits:0});}
+function fmt(d){if(!d)return'';return String(d).substring(0,10);}
+function toast(msg,type){var el=document.createElement('div');el.className='toast '+(type||'success');el.textContent=msg;document.getElementById('toasts').appendChild(el);setTimeout(function(){el.remove();},3500);}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function uid(){return'id_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);}
+
+// LOGIN
+function doLogin(){
+  var u=document.getElementById('inp-user').value.trim(),p=document.getElementById('inp-pass').value;
+  if(!u||!p){showErr('Please enter username and password');return;}
+  google.script.run
+    .withSuccessHandler(function(r){
+      if(r.success){
+        STATE.user=r.user;
+        document.getElementById('login-screen').style.display='none';
+        document.getElementById('app').classList.add('visible');
+        document.getElementById('user-name').textContent=r.user.name;
+        document.getElementById('user-role').textContent=r.user.role;
+        document.getElementById('user-avatar').textContent=r.user.name.charAt(0);
+        document.getElementById('dash-date').textContent=new Date().toDateString();
+        loadDashboard();
+        loadServices();
+        loadStylists();
+        setApptDateToday();
+      }else{showErr(r.error||'Login failed');}
+    })
+    .withFailureHandler(function(e){showErr(e.message);})
+    .loginUser(u,p);
+}
+function showErr(msg){var el=document.getElementById('login-error');el.textContent=msg;el.style.display='block';setTimeout(function(){el.style.display='none';},4000);}
+document.getElementById('inp-pass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+function logout(){STATE.user=null;STATE.cart=[];document.getElementById('app').classList.remove('visible');document.getElementById('login-screen').style.display='flex';}
+
+// NAV
+function showView(name,el){
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  document.getElementById('view-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  if(name==='dashboard')loadDashboard();
+  if(name==='appointments')loadAppointments();
+  if(name==='pos'){loadServices();setTimeout(function(){renderServiceGrid('');},600);}
+  if(name==='services'){loadServices();setTimeout(function(){renderManageGrid(STATE.services);},600);}
+  if(name==='stylists')loadStylists();
+  if(name==='clients')loadClients();
+  if(name==='sales')loadSales();
+  if(name==='expenses')loadExpenses();
+  if(name==='settings')loadSettingsForm();
+}
+
+// DASHBOARD
+function loadDashboard(){
+  document.getElementById('kpi-grid').innerHTML='<div class="loading"><div class="spinner"></div>Loading...</div>';
+  google.script.run
+    .withSuccessHandler(function(r){
+      if(!r.success){document.getElementById('kpi-grid').innerHTML='<div style="padding:20px;color:red">'+r.error+'</div>';return;}
+      document.getElementById('kpi-grid').innerHTML=
+        kpiCard('Total Revenue',kes(r.totalRev),r.totalTxns+' transactions','')+
+        kpiCard("Today's Appointments",r.todayAppts,'scheduled today','gold')+
+        kpiCard('Total Clients',r.totalClients,'in database','plum')+
+        kpiCard('Active Stylists',r.totalStylists,'team members','green');
+      document.getElementById('alert-row').innerHTML=
+        alertTile('📅',r.todayAppts,"Today's Bookings",'rose')+
+        alertTile('⏳',r.pendingAppts,'Pending','gold')+
+        alertTile('✅',r.confirmedAppts,'Confirmed','green')+
+        alertTile('👥',r.totalClients,'Total Clients','plum');
+      if(STATE.trendChart)STATE.trendChart.destroy();
+      var tKeys=Object.keys(r.trend||{}).sort();
+      STATE.trendChart=new Chart(document.getElementById('trend-chart').getContext('2d'),{type:'bar',data:{labels:tKeys.map(function(d){return d.slice(5);}),datasets:[{label:'Revenue',data:tKeys.map(function(d){return r.trend[d];}),backgroundColor:'rgba(201,132,122,.7)',borderColor:'var(--rose)',borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F5EEE9'}},x:{grid:{display:false}}}}});
+      // Revenue by service chart
+      var catKeys=Object.keys(r.catRev||{}).slice(0,7);
+      if(catKeys.length>0){
+        if(STATE.catChart)STATE.catChart.destroy();
+        STATE.catChart=new Chart(document.getElementById('cat-chart').getContext('2d'),{type:'doughnut',data:{labels:catKeys,datasets:[{data:catKeys.map(function(c){return r.catRev[c];}),backgroundColor:['#C9847A','#C9A96E','#4E1A55','#3D1242','#2E7D5E','#9A8090','#D97706']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}}}});
+      }
+      var recent=r.recent||[];
+      var rows=recent.map(function(s){var bc=s.payment==='Cash'?'badge-amber':'badge-rose';return'<tr><td>'+fmt(s.date)+'</td><td>'+s.client+'</td><td>'+s.stylist+'</td><td>'+kes(s.total)+'</td><td><span class="badge '+bc+'">'+s.payment+'</span></td></tr>';}).join('');
+      document.getElementById('recent-sales-table').innerHTML='<table><thead><tr><th>Date</th><th>Client</th><th>Stylist</th><th>Total</th><th>Payment</th></tr></thead><tbody>'+(rows||'<tr><td colspan="5" style="text-align:center;color:#aaa;padding:20px">No transactions yet</td></tr>')+'</tbody></table>';
+    })
+    .withFailureHandler(function(e){document.getElementById('kpi-grid').innerHTML='<div style="padding:20px;color:red">'+e.message+'</div>';})
+    .getDashboard();
+}
+function kpiCard(l,v,s,c){return'<div class="kpi-card '+c+'"><div class="kpi-label">'+l+'</div><div class="kpi-value">'+v+'</div><div class="kpi-sub">'+s+'</div></div>';}
+function alertTile(icon,count,label,cls){return'<div class="alert-tile '+cls+'"><div class="at-icon">'+icon+'</div><div><div class="at-count">'+(count||0)+'</div><div class="at-label">'+label+'</div></div></div>';}
+
+// SERVICES
+function loadServices(){
+  google.script.run
+    .withSuccessHandler(function(r){
+      if(r.success){STATE.services=r.data;populateServiceDropdown();}
+    }).getServices();
+}
+function renderServiceGrid(q){
+  var type=document.getElementById('pos-type-filter').value;
+  var cat=document.getElementById('pos-cat-filter').value;
+  var filtered=STATE.services.filter(function(s){return s.status==='Active'&&(!q||s.name.toLowerCase().includes(q.toLowerCase()))&&(!type||s.type===type)&&(!cat||s.category===cat);});
+  if(!filtered.length){document.getElementById('service-grid').innerHTML='<div class="loading" style="grid-column:1/-1">No services found</div>';return;}
+  document.getElementById('service-grid').innerHTML=filtered.map(function(s){var imgHtml=s.imageUrl?'<img src="'+s.imageUrl+'" alt="'+s.name+'" onerror="this.style.display=\'none\'">':'<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:36px">'+s.emoji+'</div>';return'<div class="svc-tile" onclick="addToCart(\''+s.id+'\')"><div class="svc-img">'+imgHtml+'</div><div class="svc-info"><div class="svc-type">'+s.type+' - '+s.category+'</div><div class="svc-name">'+s.name+'</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="svc-price">'+kes(s.price)+'</div>'+(s.duration?'<div class="svc-dur">'+s.duration+'min</div>':'')+'</div></div></div>';}).join('');
+}
+function filterPOS(q){renderServiceGrid(q);}
+function renderManageGrid(data){
+  if(!data||!data.length){document.getElementById('svc-manage-grid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">No items found.</div>';return;}
+  document.getElementById('svc-manage-grid').innerHTML=data.map(function(s){var imgHtml=s.imageUrl?'<img src="'+s.imageUrl+'" alt="'+s.name+'" onerror="this.style.display=\'none\'">':'<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:36px">'+s.emoji+'</div>';return'<div class="svc-tile" style="cursor:default"><div class="svc-img" style="position:relative">'+imgHtml+'<div style="position:absolute;top:6px;right:6px;display:flex;gap:4px"><button class="btn btn-sm btn-primary" style="padding:4px 8px;font-size:10px" onclick="openEditService(\''+s.id+'\')">Edit</button><button class="btn btn-sm btn-danger" style="padding:4px 8px;font-size:10px" onclick="delService(\''+s.id+'\')">Del</button></div></div><div class="svc-info"><div class="svc-type">'+s.type+' - '+s.category+'</div><div class="svc-name">'+s.name+'</div><div style="display:flex;justify-content:space-between;align-items:center"><div class="svc-price">'+kes(s.price)+'</div><span class="badge '+(s.status==='Active'?'badge-green':'badge-red')+'">'+s.status+'</span></div></div></div>';}).join('');
+}
+function filterServices(q){var type=document.getElementById('svc-type-filter').value;renderManageGrid(STATE.services.filter(function(s){return(!q||s.name.toLowerCase().includes(q.toLowerCase()))&&(!type||s.type===type);}));}
+function openAddService(){document.getElementById('svc-id').value='';document.getElementById('svc-modal-title').textContent='Add Service / Product';['svc-name','svc-img','svc-desc'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('svc-emoji').value='✨';document.getElementById('svc-price').value=0;document.getElementById('svc-cost').value=0;document.getElementById('svc-duration').value=60;document.getElementById('svc-status').value='Active';openModal('modal-service');}
+function openEditService(id){var s=STATE.services.find(function(x){return x.id===id;});if(!s)return;document.getElementById('svc-id').value=s.id;document.getElementById('svc-modal-title').textContent='Edit Service';document.getElementById('svc-name').value=s.name;document.getElementById('svc-type').value=s.type;document.getElementById('svc-cat').value=s.category;document.getElementById('svc-price').value=s.price;document.getElementById('svc-cost').value=s.cost;document.getElementById('svc-duration').value=s.duration;document.getElementById('svc-img').value=s.imageUrl||'';document.getElementById('svc-emoji').value=s.emoji||'✨';document.getElementById('svc-desc').value=s.description||'';document.getElementById('svc-status').value=s.status;openModal('modal-service');}
+function saveService(){
+  var name=document.getElementById('svc-name').value.trim(),price=document.getElementById('svc-price').value;
+  if(!name||!price){toast('Name and price are required','error');return;}
+  var id=document.getElementById('svc-id').value;
+  var data={id:id,name:name,type:document.getElementById('svc-type').value,category:document.getElementById('svc-cat').value,price:parseFloat(price),cost:parseFloat(document.getElementById('svc-cost').value)||0,duration:parseInt(document.getElementById('svc-duration').value)||0,imageUrl:document.getElementById('svc-img').value,emoji:document.getElementById('svc-emoji').value||'✨',description:document.getElementById('svc-desc').value,status:document.getElementById('svc-status').value};
+  google.script.run
+    .withSuccessHandler(function(r){
+      if(r.success){toast(id?'Updated!':'Added!');closeModal('modal-service');loadServices();setTimeout(function(){renderManageGrid(STATE.services);},800);}
+      else toast(r.error,'error');
+    })
+    .withFailureHandler(function(e){toast(e.message,'error');})
+    [id?'updateService':'addService'](data);
+}
+function delService(id){if(!confirm('Delete this item?'))return;google.script.run.withSuccessHandler(function(r){if(r.success){toast('Deleted');loadServices();setTimeout(function(){renderManageGrid(STATE.services);},800);}else toast(r.error,'error');}).deleteService(id);}
+
+// APPOINTMENTS
+function setApptDateToday(){var today=new Date().toISOString().slice(0,10);document.getElementById('appt-date-filter').value=today;updateApptDateLabel();loadAppointments();}
+function changeApptDate(delta){var input=document.getElementById('appt-date-filter');var d=new Date(input.value);d.setDate(d.getDate()+delta);input.value=d.toISOString().slice(0,10);updateApptDateLabel();loadAppointments();}
+function updateApptDateLabel(){var val=document.getElementById('appt-date-filter').value;if(!val)return;var d=new Date(val);document.getElementById('appt-date-label').textContent=d.toLocaleDateString('en-KE',{weekday:'long',day:'numeric',month:'long'});}
+function loadAppointments(){
+  var date=document.getElementById('appt-date-filter').value;
+  updateApptDateLabel();
+  document.getElementById('appt-container').innerHTML='<div class="loading"><div class="spinner"></div>Loading...</div>';
+  google.script.run
+    .withSuccessHandler(function(r){
+      if(r.success){STATE.appointments=r.data;renderAppointments(r.data);}
+      else document.getElementById('appt-container').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Could not load appointments.</div>';
+    })
+    .withFailureHandler(function(e){document.getElementById('appt-container').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">Error: '+e.message+'</div>';})
+    .getAppointments(date);
+}
+function renderAppointments(data){
+  if(!data||!data.length){document.getElementById('appt-container').innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">No appointments for this date.<br><button class="btn btn-primary" style="margin-top:16px" onclick="openBookAppt()">+ Book Appointment</button></div>';return;}
+  var html='<div class="appt-grid">'+data.map(function(a){
+    var sc=a.status==='Confirmed'?'badge-green':a.status==='Pending'?'badge-amber':a.status==='Completed'?'badge-gold':'badge-red';
+    return'<div class="appt-card '+a.status.toLowerCase()+'">'+
+      '<div class="ac-time">'+a.time+'</div>'+
+      '<div class="ac-client">'+a.client+'</div>'+
+      '<div class="ac-service">'+a.service+' - '+a.duration+' min</div>'+
+      '<div class="ac-stylist">'+a.stylist+'</div>'+
+      (a.notes?'<div style="font-size:11px;color:var(--muted);margin-bottom:6px">'+a.notes+'</div>':'')+
+      '<div style="margin-bottom:6px"><span class="badge '+sc+'">'+a.status+'</span>'+(a.phone?'<span style="font-size:11px;color:var(--muted);margin-left:8px">'+a.phone+'</span>':'')+'</div>'+
+      '<div class="ac-actions">'+
+        (a.status!=='Completed'&&a.status!=='Cancelled'?'<button class="btn btn-sm btn-gold" onclick="updateApptStatus(\''+a.id+'\',\'Completed\')">Done</button>':'')+
+        (a.status==='Pending'?'<button class="btn btn-sm btn-primary" onclick="updateApptStatus(\''+a.id+'\',\'Confirmed\')">Confirm</button>':'')+
+        (a.status!=='Cancelled'&&a.status!=='Completed'?'<button class="btn btn-sm btn-danger" onclick="updateApptStatus(\''+a.id+'\',\'Cancelled\')">Cancel</button>':'')+
+        '<button class="btn btn-sm btn-secondary" onclick="openEditAppt(\''+a.id+'\')">Edit</button>'+
+      '</div>'+
+    '</div>';
+  }).join('')+'</div>';
+  document.getElementById('appt-container').innerHTML=html;
+}
+function updateApptStatus(id,status){
+  google.script.run
+    .withSuccessHandler(function(r){if(r.success){toast('Appointment '+status.toLowerCase()+'!');loadAppointments();}else toast(r.error,'error');})
+    .updateAppointmentStatus(id,status);
+}
+function openBookAppt(){document.getElementById('appt-id').value='';document.getElementById('appt-modal-title').textContent='Book Appointment';['appt-client','appt-phone','appt-notes'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('appt-date').value=document.getElementById('appt-date-filter').value||new Date().toISOString().slice(0,10);document.getElementById('appt-time').value='09:00';document.getElementById('appt-duration').value=60;document.getElementById('appt-conflict-msg').style.display='none';openModal('modal-appt');}
+function openEditAppt(id){var a=STATE.appointments.find(function(x){return x.id===id;});if(!a)return;document.getElementById('appt-id').value=a.id;document.getElementById('appt-modal-title').textContent='Edit Appointment';document.getElementById('appt-client').value=a.client;document.getElementById('appt-phone').value=a.phone||'';document.getElementById('appt-date').value=a.date;document.getElementById('appt-time').value=a.time;document.getElementById('appt-stylist').value=a.stylistId||'';document.getElementById('appt-service').value=a.serviceId||'';document.getElementById('appt-duration').value=a.duration;document.getElementById('appt-notes').value=a.notes||'';document.getElementById('appt-conflict-msg').style.display='none';openModal('modal-appt');}
+function saveAppointment(){
+  var id=document.getElementById('appt-id').value;
+  var client=document.getElementById('appt-client').value.trim();
+  var date=document.getElementById('appt-date').value;
+  var time=document.getElementById('appt-time').value;
+  var stylistVal=document.getElementById('appt-stylist').value;
+  var serviceVal=document.getElementById('appt-service').value;
+  var duration=document.getElementById('appt-duration').value;
+  if(!client||!date||!time||!stylistVal||!serviceVal){toast('Please fill all required fields','error');return;}
+  var stylist=STATE.stylists.find(function(s){return s.id===stylistVal;})||{name:stylistVal,id:stylistVal};
+  var svcEl=document.getElementById('appt-service');
+  var svcName=svcEl.options[svcEl.selectedIndex]?svcEl.options[svcEl.selectedIndex].text:'';
+  var appt={id:id,client:client,phone:document.getElementById('appt-phone').value,date:date,time:time,stylist:stylist.name,stylistId:stylistVal,serviceId:serviceVal,service:svcName,duration:parseInt(duration)||60,notes:document.getElementById('appt-notes').value};
+  document.getElementById('appt-conflict-msg').style.display='none';
+  google.script.run
+    .withSuccessHandler(function(r){
+      if(r.success){toast(id?'Appointment updated!':'Appointment booked!');closeModal('modal-appt');loadAppointments();}
+      else if(r.conflict){document.getElementById('appt-conflict-msg').textContent='Warning: '+r.error;document.getElementById('appt-conflict-msg').style.display='block';}
+      else toast(r.error,'error');
+    })
+    .withFailureHandler(function(e){toast(e.message,'error');})
+    .saveAppointment(appt);
+}
+
+// POS
+function addToCart(id){var s=STATE.services.find(function(x){return x.id===id;});if(!s)return;var existing=STATE.cart.find(function(c){return c.id===id;});if(existing){existing.qty++;}else{STATE.cart.push({id:id,name:s.name,price:s.price,qty:1,category:s.category,type:s.type});}renderCart();toast(s.name+' added','info');}
+function changeQty(idx,delta){STATE.cart[idx].qty+=delta;if(STATE.cart[idx].qty<=0)STATE.cart.splice(idx,1);renderCart();}
+function removeFromCart(idx){STATE.cart.splice(idx,1);renderCart();}
+function renderCart(){
+  var total=STATE.cart.reduce(function(s,c){return s+c.price*c.qty;},0);
+  var btn=document.getElementById('btn-charge');
+  btn.innerHTML='CHARGE — <span id="charge-amount">'+kes(total)+'</span>';
+  btn.disabled=!STATE.cart.length;
+  if(!STATE.cart.length){document.getElementById('cart-items').innerHTML='<div class="cart-empty">Cart is empty<br>Tap a service to add</div>';document.getElementById('cart-summary').style.display='none';return;}
+  document.getElementById('cart-summary').style.display='block';
+  document.getElementById('cart-subtotal').textContent=kes(total);
+  document.getElementById('cart-total').textContent=kes(total);
+  document.getElementById('cart-items').innerHTML=STATE.cart.map(function(c,i){return'<div class="cart-item"><div class="ci-name">'+c.name+'</div><div class="ci-qty"><button onclick="changeQty('+i+',-1)">-</button><span>'+c.qty+'</span><button onclick="changeQty('+i+',1)">+</button></div><div class="ci-total">'+kes(c.price*c.qty)+'</div><button class="ci-del" onclick="removeFromCart('+i+')">x</button></div>';}).join('');
+  calcChange();
+}
+function setPayMethod(method,el){STATE.payMethod=method;document.querySelectorAll('.pay-method').forEach(function(e){e.classList.remove('active');});el.classList.add('active');document.getElementById('cash-row').style.display=method==='Cash'?'block':'none';}
+function calcChange(){var total=STATE.cart.reduce(function(s,c){return s+c.price*c.qty;},0);var paid=parseFloat(document.getElementById('amount-paid').value)||0;document.getElementById('change-display').textContent=paid?'Change: '+kes(Math.max(0,paid-total)):'';}
+function processSale(){
+  if(!STATE.cart.length){toast('Cart is empty','error');return;}
+  var total=STATE.cart.reduce(function(s,c){return s+c.price*c.qty;},0);
+  var paid=STATE.payMethod==='Cash'?(parseFloat(document.getElementById('amount-paid').value)||total):total;
+  if(STATE.payMethod==='Cash'&&paid<total){toast('Amount paid is less than total','error');return;}
+  var btn=document.getElementById('btn-charge');btn.disabled=true;btn.innerHTML='Processing...';
+  var sty=document.getElementById('pos-stylist');
+  var stylistId=sty.value;
+  var stylistName=sty.options[sty.selectedIndex]?sty.options[sty.selectedIndex].text:'';
+  var savedItems=STATE.cart.slice();
+  var custName=document.getElementById('cust-name').value||'Walk-in';
+  var saleData={items:STATE.cart,total:total,paymentMethod:STATE.payMethod,amountPaid:paid,clientName:custName,clientPhone:document.getElementById('cust-phone').value,stylistId:stylistId,stylistName:stylistName,cashier:STATE.user?STATE.user.name:'Cashier'};
+  google.script.run
+    .withSuccessHandler(function(r){
+      if(r.success){
+        toast('Sale complete! '+r.receipt);
+        showReceipt(r.receipt,total,STATE.payMethod,paid,Math.max(0,paid-total),custName,savedItems,stylistName);
+        STATE.cart=[];renderCart();
+        document.getElementById('cust-name').value='';document.getElementById('cust-phone').value='';document.getElementById('amount-paid').value='';
+      }else{toast(r.error,'error');btn.disabled=false;renderCart();}
+    })
+    .withFailureHandler(function(e){toast(e.message,'error');btn.disabled=false;renderCart();})
+    .createSale(saleData);
+}
+function showReceipt(receiptNo,total,payment,paid,change,client,items,stylist){
+  var rows=(items||[]).map(function(i){return'<div class="r-row"><span>'+i.name+(i.qty>1?' x'+i.qty:'')+'</span><span>'+kes(i.price*i.qty)+'</span></div>';}).join('');
+  document.getElementById('receipt-content').innerHTML='<div class="receipt"><div class="r-logo">'+(STATE.settings.salonName||'StylesHub Pro')+'</div><div class="r-center">'+(STATE.settings.address||'')+'<br>'+new Date().toLocaleString()+'</div><div class="r-divider"></div><div class="r-row"><span>Receipt</span><span>'+receiptNo+'</span></div><div class="r-row"><span>Client</span><span>'+(client||'Walk-in')+'</span></div>'+(stylist?'<div class="r-row"><span>Stylist</span><span>'+stylist+'</span></div>':'')+' <div class="r-divider"></div>'+rows+'<div class="r-divider"></div><div class="r-row r-total"><span>TOTAL</span><span>'+kes(total)+'</span></div><div class="r-row"><span>Payment</span><span>'+payment+'</span></div>'+(payment==='Cash'?'<div class="r-row"><span>Change</span><span>'+kes(change)+'</span></div>':'')+' <div class="r-divider"></div><div class="r-footer">'+(STATE.settings.receiptFooter||'Thank you! See you soon')+'</div></div>';
+  openModal('modal-receipt');
+}
+
+// STYLISTS
+function loadStylists(){
+  google.script.run
+    .withSuccessHandler(function(r){
+      if(r.success){STATE.stylists=r.data;renderStylistGrid();populateStylistDropdowns();}
+    }).getStylists();
+}
+function renderStylistGrid(){
+  if(!STATE.stylists.length){document.getElementById('stylist-grid').innerHTML='<div style="padding:30px;text-align:center;color:var(--muted)">No stylists yet.</div>';return;}
+  document.getElementById('stylist-grid').innerHTML=STATE.stylists.map(function(s){return'<div class="stylist-card"><div class="sc-avatar">'+s.name.charAt(0)+'</div><div class="sc-name">'+s.name+'</div><div class="sc-role">'+s.role+'</div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">'+s.specialties+'</div><div style="font-size:11px;color:var(--muted)">'+s.phone+'</div><div class="sc-stats"><div class="sc-stat"><div class="val">'+kes(s.totalSales)+'</div><div class="lbl">Revenue</div></div><div class="sc-stat"><div class="val">'+s.totalClients+'</div><div class="lbl">Clients</div></div></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-sm btn-secondary" style="flex:1" onclick="openEditStylist(\''+s.id+'\')">Edit</button><button class="btn btn-sm btn-danger" onclick="delStylist(\''+s.id+'\')">Del</button></div></div>';}).join('');
+}
+function openAddStylist(){document.getElementById('sty-id').value='';['sty-name','sty-role','sty-phone','sty-email','sty-specialties'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('sty-modal-title').textContent='Add Stylist';openModal('modal-stylist');}
+function openEditStylist(id){var s=STATE.stylists.find(function(x){return x.id===id;});if(!s)return;document.getElementById('sty-id').value=s.id;document.getElementById('sty-name').value=s.name;document.getElementById('sty-role').value=s.role;document.getElementById('sty-phone').value=s.phone;document.getElementById('sty-email').value=s.email;document.getElementById('sty-specialties').value=s.specialties;document.getElementById('sty-modal-title').textContent='Edit Stylist';openModal('modal-stylist');}
+function saveStylist(){var name=document.getElementById('sty-name').value.trim();if(!name){toast('Name is required','error');return;}var id=document.getElementById('sty-id').value;var data={id:id,name:name,role:document.getElementById('sty-role').value,phone:document.getElementById('sty-phone').value,email:document.getElementById('sty-email').value,specialties:document.getElementById('sty-specialties').value};google.script.run.withSuccessHandler(function(r){if(r.success){toast(id?'Stylist updated!':'Stylist added!');closeModal('modal-stylist');loadStylists();}else toast(r.error,'error');})[id?'updateStylist':'addStylist'](data);}
+function delStylist(id){if(!confirm('Delete this stylist?'))return;google.script.run.withSuccessHandler(function(r){if(r.success){toast('Deleted');loadStylists();}else toast(r.error,'error');}).deleteStylist(id);}
+
+// CLIENTS
+function loadClients(){document.getElementById('client-table').innerHTML='<div class="loading"><div class="spinner"></div>Loading...</div>';google.script.run.withSuccessHandler(function(r){if(r.success){STATE.clients=r.data;renderClientTable(r.data);}}).getClients();}
+function renderClientTable(data){
+  if(!data||!data.length){document.getElementById('client-table').innerHTML='<div style="padding:30px;text-align:center;color:var(--muted)">No clients yet.</div>';return;}
+  var rows=data.map(function(c){return'<tr><td><strong>'+c.name+'</strong></td><td>'+c.phone+'</td><td>'+(c.hairType||'-')+'</td><td>'+(c.preferredStylist||'-')+'</td><td><strong>'+kes(c.totalSpent)+'</strong></td><td>'+c.visits+'</td><td>'+(c.lastVisit||'-')+'</td><td><button class="btn btn-sm btn-danger" onclick="delClient(\''+c.id+'\')">Del</button></td></tr>';}).join('');
+  document.getElementById('client-table').innerHTML='<table><thead><tr><th>Name</th><th>Phone</th><th>Hair Type</th><th>Stylist</th><th>Total Spent</th><th>Visits</th><th>Last Visit</th><th>Action</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function filterClients(q){renderClientTable(STATE.clients.filter(function(c){return!q||c.name.toLowerCase().includes(q.toLowerCase())||(c.phone&&c.phone.includes(q));}));}
+function openAddClient(){['cl-name','cl-phone','cl-email','cl-notes'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('cl-birthday').value='';document.getElementById('cl-hair').value='';populateClientStylistDropdown();openModal('modal-client');}
+function saveClient(){var name=document.getElementById('cl-name').value.trim();if(!name){toast('Name required','error');return;}var sty=document.getElementById('cl-stylist');google.script.run.withSuccessHandler(function(r){if(r.success){toast('Client added!');closeModal('modal-client');loadClients();}else toast(r.error,'error');}).addClient({name:name,phone:document.getElementById('cl-phone').value,email:document.getElementById('cl-email').value,hairType:document.getElementById('cl-hair').value,preferredStylist:sty.options[sty.selectedIndex]?sty.options[sty.selectedIndex].text:'',birthday:document.getElementById('cl-birthday').value,notes:document.getElementById('cl-notes').value});}
+function delClient(id){if(!confirm('Delete client?'))return;google.script.run.withSuccessHandler(function(r){if(r.success){toast('Deleted');loadClients();}else toast(r.error,'error');}).deleteClient(id);}
+
+// SALES
+function loadSales(){document.getElementById('sales-table').innerHTML='<div class="loading"><div class="spinner"></div>Loading...</div>';google.script.run.withSuccessHandler(function(r){if(r.success){STATE.sales=r.data;renderSalesTable(r.data);}}).getSales(200);}
+function renderSalesTable(data){
+  if(!data||!data.length){document.getElementById('sales-table').innerHTML='<div style="padding:30px;text-align:center;color:var(--muted)">No sales yet.</div>';return;}
+  var rows=data.map(function(s){var bc=s.payment==='Cash'?'badge-amber':'badge-rose';return'<tr><td>'+fmt(s.date)+'</td><td><strong>'+s.receiptNo+'</strong></td><td>'+s.client+'</td><td>'+(s.stylist||'-')+'</td><td><strong>'+kes(s.total)+'</strong></td><td><span class="badge '+bc+'">'+s.payment+'</span></td></tr>';}).join('');
+  document.getElementById('sales-table').innerHTML='<table><thead><tr><th>Date</th><th>Receipt</th><th>Client</th><th>Stylist</th><th>Total</th><th>Payment</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function filterSales(q){renderSalesTable(STATE.sales.filter(function(s){return!q||(s.client&&s.client.toLowerCase().includes(q.toLowerCase()))||(s.receiptNo&&s.receiptNo.includes(q));}));}
+
+// EXPENSES
+function loadExpenses(){document.getElementById('exp-table').innerHTML='<div class="loading"><div class="spinner"></div>Loading...</div>';google.script.run.withSuccessHandler(function(r){if(r.success){STATE.expenses=r.data;renderExpensesTable(r.data);}}).getExpenses();}
+function renderExpensesTable(data){
+  if(!data||!data.length){document.getElementById('exp-table').innerHTML='<div style="padding:30px;text-align:center;color:var(--muted)">No expenses yet.</div>';return;}
+  var total=data.reduce(function(a,e){return a+e.amount;},0);
+  var rows=data.map(function(e){return'<tr><td>'+fmt(e.date)+'</td><td><span class="badge badge-plum">'+e.category+'</span></td><td>'+e.description+'</td><td><strong>'+kes(e.amount)+'</strong></td><td>'+(e.recordedBy||'-')+'</td><td><button class="btn btn-sm btn-danger" onclick="delExpense(\''+e.id+'\')">Del</button></td></tr>';}).join('');
+  document.getElementById('exp-table').innerHTML='<table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>By</th><th>Action</th></tr></thead><tbody>'+rows+'<tr style="background:var(--light)"><td colspan="3"><strong>TOTAL</strong></td><td><strong>'+kes(total)+'</strong></td><td colspan="2"></td></tr></tbody></table>';
+}
+function filterExpenses(q){renderExpensesTable(STATE.expenses.filter(function(e){return!q||e.description.toLowerCase().includes(q.toLowerCase());}));}
+function openAddExpense(){document.getElementById('exp-id').value='';['exp-desc','exp-amount','exp-notes'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('exp-modal-title').textContent='Add Expense';openModal('modal-expense');}
+function delExpense(id){if(!confirm('Delete expense?'))return;google.script.run.withSuccessHandler(function(r){if(r.success){toast('Deleted');loadExpenses();}else toast(r.error,'error');}).deleteExpense(id);}
+function saveExpense(){var desc=document.getElementById('exp-desc').value.trim(),amount=document.getElementById('exp-amount').value;if(!desc||!amount){toast('Description and amount required','error');return;}google.script.run.withSuccessHandler(function(r){if(r.success){toast('Expense saved!');closeModal('modal-expense');loadExpenses();}else toast(r.error,'error');}).addExpense({category:document.getElementById('exp-cat').value,description:desc,amount:amount,notes:document.getElementById('exp-notes').value,recordedBy:STATE.user?STATE.user.name:''});}
+
+// REPORTS
+function runReport(type){
+  var start=document.getElementById('rpt-start').value,end=document.getElementById('rpt-end').value;
+  if(!start||!end){var now=new Date(),y=now.getFullYear(),m=now.getMonth()+1;start=y+'-'+String(m).padStart(2,'0')+'-01';end=new Date(y,m,0).toISOString().slice(0,10);document.getElementById('rpt-start').value=start;document.getElementById('rpt-end').value=end;}
+  var out=document.getElementById('report-output');
+  out.innerHTML='<div class="loading"><div class="spinner"></div>Generating...</div>';
+  if(type==='pl'){google.script.run.withSuccessHandler(function(r){if(!r.success){toast(r.error,'error');return;}var d=r.data;out.innerHTML='<div class="card"><div class="card-header"><div class="card-title">Profit & Loss - '+start+' to '+end+'</div></div><div class="card-body">'+plRow('Total Revenue',d.revenue,'green')+plRow('Cost of Services',d.cogs,'red')+plRow('Gross Profit',d.grossProfit,d.grossProfit>=0?'green':'red')+'<div style="height:1px;background:var(--rule);margin:12px 0"></div>'+plRow('Total Expenses',d.expenses,'amber')+'<div style="height:1px;background:var(--rule);margin:12px 0"></div>'+plRow('Net Profit',d.netProfit,d.netProfit>=0?'green':'red',true)+'</div></div>';}).getProfitLoss(start,end);}
+  else if(type==='sales'){google.script.run.withSuccessHandler(function(r){if(!r.success){toast(r.error,'error');return;}var rows=r.data.map(function(s){return'<tr><td>'+fmt(s.date)+'</td><td>'+s.receiptNo+'</td><td>'+s.client+'</td><td>'+s.stylist+'</td><td>'+kes(s.total)+'</td><td>'+s.payment+'</td></tr>';}).join('');out.innerHTML='<div class="card"><div class="card-header"><div class="card-title">Sales Report - '+start+' to '+end+' - <strong>'+kes(r.total)+'</strong></div></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Receipt</th><th>Client</th><th>Stylist</th><th>Total</th><th>Payment</th></tr></thead><tbody>'+(rows||'<tr><td colspan="6" style="text-align:center;color:#aaa">No sales</td></tr>')+'</tbody></table></div></div>';}).getSalesReport(start,end);}
+  else if(type==='stylist'){google.script.run.withSuccessHandler(function(r){if(!r.success){toast(r.error,'error');return;}var rows=r.data.map(function(s){return'<tr><td><strong>'+s.name+'</strong></td><td>'+kes(s.revenue)+'</td><td>'+s.txns+'</td></tr>';}).join('');out.innerHTML='<div class="card"><div class="card-header"><div class="card-title">Stylist Performance - '+start+' to '+end+'</div></div><div class="table-wrap"><table><thead><tr><th>Stylist</th><th>Revenue</th><th>Transactions</th></tr></thead><tbody>'+(rows||'<tr><td colspan="3" style="text-align:center;color:#aaa">No data</td></tr>')+'</tbody></table></div></div>';}).getStylistReport(start,end);}
+}
+function plRow(l,v,c,b){var col=c==='green'?'var(--green)':c==='red'?'var(--red)':'var(--amber)';return'<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--light);'+(b?'font-size:16px;font-weight:700;':'')+'"><span>'+(b?'<strong>':'')+l+(b?'</strong>':'')+'</span><span style="color:'+col+';font-weight:700">'+kes(v)+'</span></div>';}
+
+// SETTINGS
+function loadSettingsForm(){
+  google.script.run.withSuccessHandler(function(r){
+    if(!r.success)return;var s=r.data;
+    document.getElementById('settings-form').innerHTML='<div class="form-row"><div class="field"><label>Salon Name</label><input type="text" id="s-name" value="'+(s.salonName||'StylesHub Pro')+'"></div><div class="field"><label>Currency</label><input type="text" id="s-currency" value="'+(s.currency||'KES')+'"></div></div><div class="field"><label>Address</label><input type="text" id="s-address" value="'+(s.address||'')+'"></div><div class="form-row"><div class="field"><label>Phone</label><input type="text" id="s-phone" value="'+(s.phone||'')+'"></div><div class="field"><label>Email</label><input type="text" id="s-email" value="'+(s.email||'')+'"></div></div><div class="field"><label>Receipt Footer</label><input type="text" id="s-footer" value="'+(s.receiptFooter||'Thank you! See you soon')+'"></div><button class="btn btn-primary" style="margin-top:8px" onclick="saveSettingsForm()">Save Settings</button>';
+  }).getSettings();
+}
+function saveSettingsForm(){var data={salonName:document.getElementById('s-name').value,currency:document.getElementById('s-currency').value,address:document.getElementById('s-address').value,phone:document.getElementById('s-phone').value,email:document.getElementById('s-email').value,receiptFooter:document.getElementById('s-footer').value};google.script.run.withSuccessHandler(function(r){if(r.success){STATE.settings=data;toast('Settings saved!');}else toast(r.error,'error');}).saveSettings(data);}
+
+// DROPDOWNS
+function populateStylistDropdowns(){
+  var opts='<option value="">Select stylist</option>'+STATE.stylists.map(function(s){return'<option value="'+s.id+'">'+s.name+'</option>';}).join('');
+  document.getElementById('appt-stylist').innerHTML=opts;
+  var posOpts='<option value="">Assign stylist (optional)</option>'+STATE.stylists.map(function(s){return'<option value="'+s.id+'">'+s.name+'</option>';}).join('');
+  document.getElementById('pos-stylist').innerHTML=posOpts;
+}
+function populateClientStylistDropdown(){document.getElementById('cl-stylist').innerHTML='<option value="">No preference</option>'+STATE.stylists.map(function(s){return'<option value="'+s.id+'">'+s.name+'</option>';}).join('');}
+function populateServiceDropdown(){document.getElementById('appt-service').innerHTML='<option value="">Select service</option>'+STATE.services.filter(function(s){return s.type==='Service'&&s.status==='Active';}).map(function(s){return'<option value="'+s.id+'">'+s.name+'</option>';}).join('');}
+
+// INIT
+(function(){var now=new Date(),y=now.getFullYear(),m=now.getMonth()+1;document.getElementById('rpt-start').value=y+'-'+String(m).padStart(2,'0')+'-01';document.getElementById('rpt-end').value=new Date(y,m,0).toISOString().slice(0,10);})();
+</script>
+</body>
+</html>
